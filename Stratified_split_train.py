@@ -55,7 +55,7 @@ n_models = 30
 all_predictions = []
 
 # Stratified K-Fold split
-
+seed_value = np.random.randint(1, 9999)
 skf = StratifiedKFold(n_splits=n_models, shuffle=True, random_state=seed_value)
 for fold, (train_idx, val_idx) in enumerate(skf.split(features_pca, labels)):
     print(f"Training model {fold+1}/{n_models}...")
@@ -86,8 +86,8 @@ for fold, (train_idx, val_idx) in enumerate(skf.split(features_pca, labels)):
     model.fit(X_train, y_train, epochs=100, batch_size=32, validation_data=(X_val, y_val), callbacks=[early_stopping])
     
     # Predict on the test data subset
-    test_predictions = model.predict(test_features_subset)
-    all_predictions.append(test_predictions)
+    # test_predictions = model.predict(test_features_subset)
+    # all_predictions.append(test_predictions)
     
     # Save the predictions to a CSV file for this model
     output = np.hstack((test_df['ID'].values.reshape(-1, 1), test_predictions))
@@ -96,19 +96,19 @@ for fold, (train_idx, val_idx) in enumerate(skf.split(features_pca, labels)):
 print("All models have been trained and predictions saved.")
 
 # Ensemble: Average the predictions from all models
-ensemble_predictions = np.mean(all_predictions, axis=0)
+# ensemble_predictions = np.mean(all_predictions, axis=0)
 
 # Determine the predicted label by taking the argmax of the averaged predictions
-final_labels = np.argmax(ensemble_predictions, axis=1)
+# final_labels = np.argmax(ensemble_predictions, axis=1)
 
-# Create the submission DataFrame
-submission_df = pd.DataFrame({
-    'ID': test_df['ID'],
-    'Label': final_labels
-})
+# # Create the submission DataFrame
+# submission_df = pd.DataFrame({
+#     'ID': test_df['ID'],
+#     'Label': final_labels
+# })
 
-# Save the final submission file
-submission_file_path = os.path.join(data_dir, "ensemble_submission.csv")
-submission_df.to_csv(submission_file_path, index=False)
+# # Save the final submission file
+# submission_file_path = os.path.join(data_dir, "ensemble_submission.csv")
+# submission_df.to_csv(submission_file_path, index=False)
 
-print("Final predictions have been saved.")
+# print("Final predictions have been saved.")
