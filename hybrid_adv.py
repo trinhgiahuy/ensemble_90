@@ -2,6 +2,7 @@ import os
 import random
 import numpy as np
 import pandas as pd
+import tensorflow as tf
 from sklearn.decomposition import PCA
 from sklearn.model_selection import StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
@@ -14,7 +15,7 @@ from tensorflow.keras.regularizers import l2
 
 
 # Load data
-data_dir = './'  # Update this path if needed
+data_dir = '../data'  # Update this path if needed
 train_file = os.path.join(data_dir, 'train.csv')
 test_file = os.path.join(data_dir, 'test.csv')
 
@@ -78,7 +79,7 @@ for fold, (train_idx, val_idx) in enumerate(skf.split(features_pca, labels)):
     # Train Logistic Regression on KNN features
     logistic = LogisticRegression()
     logistic.fit(X_val_knn, y_val)
-    
+
     # Calculate KNN distances and indices for test set
     test_knn_distances, test_knn_indices = knn.kneighbors(test_features_pca)
     test_knn_features = np.hstack((test_knn_distances, y_train[test_knn_indices]))
@@ -90,7 +91,7 @@ for fold, (train_idx, val_idx) in enumerate(skf.split(features_pca, labels)):
     # Train Neural Network on KNN features
     nn_model = build_nn_model(X_val_knn.shape[1])
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
-    nn_model.fit(X_val_knn, y_val, epochs=50, batch_size=32, verbose=0, validation_data=(X_val_knn, y_val), callbacks=[early_stopping])
+    nn_model.fit(X_val_knn, y_val, epochs=100, batch_size=32, verbose=0, validation_data=(X_val_knn, y_val), callbacks=[early_stopping])
 
     # Predict on test set using Neural Network
     test_nn_pred = nn_model.predict(test_knn_features)
