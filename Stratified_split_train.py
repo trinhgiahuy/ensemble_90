@@ -1,5 +1,10 @@
 import os
 import random
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import tensorflow as tf
 import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
@@ -11,7 +16,7 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.regularizers import l2
 
 # Load data
-data_dir = './'  # Update this path if needed
+data_dir = '../data'  # Update this path if needed
 train_file = os.path.join(data_dir, 'train.csv')
 test_file = os.path.join(data_dir, 'test.csv')
 
@@ -62,7 +67,7 @@ for fold, (train_idx, val_idx) in enumerate(skf.split(features_pca, labels)):
     # Set different seed values for each iteration
     # seed_value = np.random.randint(20, 1000) + np.random.randint(20, 30) - 2 * fold
     seed_value = np.random.randint(1, 9999) + fold
-    
+
 
     print(f"Random seed value: {seed_value}")
     os.environ['PYTHONHASHSEED'] = str(seed_value)
@@ -84,11 +89,11 @@ for fold, (train_idx, val_idx) in enumerate(skf.split(features_pca, labels)):
     model = build_model(X_train.shape[1])
     early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
     model.fit(X_train, y_train, epochs=100, batch_size=32, validation_data=(X_val, y_val), callbacks=[early_stopping])
-    
+
     # Predict on the test data subset
     # test_predictions = model.predict(test_features_subset)
     # all_predictions.append(test_predictions)
-    
+
     # Save the predictions to a CSV file for this model
     output = np.hstack((test_df['ID'].values.reshape(-1, 1), test_predictions))
     np.savetxt(os.path.join(results_dir, f"test_predictions_model_{seed_value}.csv"), output, delimiter=",", header="ID,Class_0,Class_1,Class_2", comments='', fmt='%.6f')
